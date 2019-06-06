@@ -275,9 +275,9 @@ class MailChimp_WooCommerce_MailChimpApi
     {
         $hash = md5(strtolower(trim($email)));
         $tags = mailchimp_get_user_tags_to_update();
-        
+
         if (empty($tags)) return false;
-        
+
         $data = array(
             'tags' => $tags
         );
@@ -927,7 +927,7 @@ class MailChimp_WooCommerce_MailChimpApi
             }
             $order_id = $order->getId();
             $data = $this->patch("ecommerce/stores/{$store_id}/orders/{$order_id}", $order->toArray());
-            
+
             //update user tags
             $customer = $order->getCustomer();
             $list_id = mailchimp_get_list_id();
@@ -1644,10 +1644,11 @@ class MailChimp_WooCommerce_MailChimpApi
 
         // make sure the response is correct from the data in the response array
         if (isset($data['status']) && $data['status'] >= 400) {
-            if ($data['http_code'] == 403) {
-                throw new MailChimp_WooCommerce_RateLimitError();
-            }
-            throw new MailChimp_WooCommerce_Error($data['detail'], $data['status']);
+          if (isset($data['http_code']) && $data['http_code'] == 403) {
+            throw new MailChimp_WooCommerce_RateLimitError();
+          }
+
+          throw new MailChimp_WooCommerce_Error($data['detail'], $data['status']);
         }
 
         return false;
