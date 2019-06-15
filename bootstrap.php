@@ -22,7 +22,7 @@ spl_autoload_register(function($class) {
         'Mailchimp_Woocommerce_Deactivation_Survey' => 'includes/class-mailchimp-woocommerce-deactivation-survey.php',
         'MailChimp_WooCommerce_Queue' => 'includes/class-mailchimp-woocommerce-queue.php',
         'MailChimp_WooCommerce_Rest_Api' => 'includes/class-mailchimp-woocommerce-rest-api.php',
-        
+
         // includes/api/assets
         'MailChimp_WooCommerce_Address' => 'includes/api/assets/class-mailchimp-address.php',
         'MailChimp_WooCommerce_Cart' => 'includes/api/assets/class-mailchimp-cart.php',
@@ -169,7 +169,7 @@ if (!function_exists( 'wp_queue')) {
  * @param bool $force_now
  */
 function mailchimp_handle_or_queue(WP_Job $job, $delay = 0, $force_now = false)
-{   
+{
     if ($job instanceof \MailChimp_WooCommerce_Single_Order && isset($job->order_id)) {
         // if this is a order process already queued - just skip this
         if (get_site_transient("mailchimp_order_being_processed_{$job->order_id}") == true) {
@@ -319,7 +319,7 @@ function mailchimp_get_user_tags_to_update() {
 
     // apply filter to user custom tags addition/removal
     $formatted_tags = apply_filters('mailchimp_user_tags', $formatted_tags);
-    
+
     return $formatted_tags;
 }
 
@@ -878,16 +878,16 @@ function mailchimp_get_local_rest_domain_or_ip() {
 function mailchimp_apply_local_rest_api_override($url, $alternate_host) {
     $parsed_url = parse_url($url);
     $p             = array();
-    $p['scheme']   = isset( $parsed_url['scheme'] ) ? $parsed_url['scheme'] . '://' : ''; 
-    $p['host']     = $alternate_host;         
-    $p['port']     = isset( $parsed_url['port'] ) ? ':' . $parsed_url['port'] : ''; 
-    $p['user']     = isset( $parsed_url['user'] ) ? $parsed_url['user'] : ''; 
-    $p['pass']     = isset( $parsed_url['pass'] ) ? ':' . $parsed_url['pass']  : ''; 
-    $p['pass']     = ( $p['user'] || $p['pass'] ) ? $p['pass']."@" : ''; 
-    $p['path']     = isset( $parsed_url['path'] ) ? $parsed_url['path'] : ''; 
-    $p['query']    = isset( $parsed_url['query'] ) ? '?' . $parsed_url['query'] : ''; 
+    $p['scheme']   = isset( $parsed_url['scheme'] ) ? $parsed_url['scheme'] . '://' : '';
+    $p['host']     = $alternate_host;
+    $p['port']     = isset( $parsed_url['port'] ) ? ':' . $parsed_url['port'] : '';
+    $p['user']     = isset( $parsed_url['user'] ) ? $parsed_url['user'] : '';
+    $p['pass']     = isset( $parsed_url['pass'] ) ? ':' . $parsed_url['pass']  : '';
+    $p['pass']     = ( $p['user'] || $p['pass'] ) ? $p['pass']."@" : '';
+    $p['path']     = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '';
+    $p['query']    = isset( $parsed_url['query'] ) ? '?' . $parsed_url['query'] : '';
     $p['fragment'] = isset( $parsed_url['fragment'] ) ? '#' . $parsed_url['fragment'] : '';
-    
+
     return $url = $p['scheme'].$p['user'].$p['pass'].$p['host'].$p['port'].$p['path'].$p['query'].$p['fragment'];
 }
 
@@ -1274,4 +1274,3 @@ function mailchimp_on_all_plugins_loaded() {
         run_mailchimp_woocommerce();
     }
 }
-
