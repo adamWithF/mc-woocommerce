@@ -134,7 +134,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 	public function options_update() {
 
 		$this->handle_abandoned_cart_table();
-		
+
 		$this->update_db_check();
 
 		register_setting($this->plugin_name, $this->plugin_name, array($this, 'validate'));
@@ -164,19 +164,19 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 				update_option( $this->plugin_name.'_cart_table_add_index_update', true);
 			}
 		}
-		
+
 		if (!get_option( $this->plugin_name.'_woo_currency_update')) {
 			if ($this->mailchimp_update_woo_settings()) {
 				update_option( $this->plugin_name.'_woo_currency_update', true);
-			} 
+			}
 		}
 	}
 
 	/**
 	 * Sets the Store Currency code on plugin options
-	 * 
+	 *
 	 * @param string $code
-	 * @return array $options 
+	 * @return array $options
 	 */
 	private function mailchimp_set_store_currency_code($code = null) {
 		if (!isset($code)) {
@@ -191,9 +191,9 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 
 	/**
 	 * Fired when woocommerce store settings are saved
-	 * 
+	 *
 	 * @param string $code
-	 * @return array $options 
+	 * @return array $options
 	 */
 	public function mailchimp_update_woo_settings() {
 		$new_currency_code = null;
@@ -204,11 +204,11 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 		else if (isset($_POST['woocommerce_currency'])) {
 			$new_currency_code = $_POST['woocommerce_currency'];
 		}
-		
+
 		$data = $this->mailchimp_set_store_currency_code($new_currency_code);
 		return $this->syncStore($data);
 	}
-	
+
 	/**
 	 * We need to do a tidy up function on the mailchimp_carts table to
 	 * remove anything older than 30 days.
@@ -294,7 +294,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
                 if (isset($_POST['log_file']) && !empty($_POST['log_file'])) {
                     set_site_transient('mailchimp-woocommerce-view-log-file', $_POST['log_file'], 30);
                 }
-                
+
                 $data = array(
                     'mailchimp_logging' => isset($input['mailchimp_logging']) ? $input['mailchimp_logging'] : 'none',
                 );
@@ -307,13 +307,13 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 
                 break;
 		}
-		
+
 		// if no API is provided, check if the one saved on the database is still valid.
-		if (!$input['mailchimp_api_key'] && $this->getOption('mailchimp_api_key')) {
+		if (empty($input['mailchimp_api_key']) && $this->getOption('mailchimp_api_key')) {
 			// set api key for validation
 			$input['mailchimp_api_key'] = $this->getOption('mailchimp_api_key');
 			$api_key_valid = $this->validatePostApiKey($input);
-			
+
 			// if there's no error, remove the api_ping_error from the db
 			if (!$api_key_valid['api_ping_error'])
 				$data['api_ping_error'] = $api_key_valid['api_ping_error'];
@@ -972,7 +972,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 				foreach ($stores as $mc_store) {
 					if ($mc_store->getDomain() === $store->getDomain() && $store->getPlatform() == "woocommerce") {
 						update_option('mailchimp-woocommerce-store_id', $mc_store->getId(), 'yes');
-						
+
 						// update the store with the previous listID
 						$store->setListId($mc_store->getListId());
 						$store->setId($mc_store->getId());
@@ -981,7 +981,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 						$this->swapped_store_id = $mc_store->getId();
 
 						// check if list id is the same, if not, throw error saying that there's already a store synched to a list, so we can't proceed.
-						
+
 						if ($this->api()->updateStore($store)) {
 							return true;
 						}

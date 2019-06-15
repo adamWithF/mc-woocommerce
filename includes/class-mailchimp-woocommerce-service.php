@@ -112,12 +112,13 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
         if (!mailchimp_is_configured()) return;
 
         $newOrder = false;
+        $tracking = null;
 
         if ("pending" == $old_status && "processing" == $new_status) {
             $tracking = $this->onNewOrder($order_id);
             $newOrder = true;
         }
-        
+
         $this->onOrderSave($order_id, $tracking, $newOrder);
     }
 
@@ -136,7 +137,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
         $handler = new MailChimp_WooCommerce_Single_Order($order_id, null, $campaign_id, $landing_site);
         $handler->is_update = $newOrder ? !$newOrder : null;
         $handler->is_admin_save = is_admin();
-        
+
         mailchimp_handle_or_queue($handler, 90);
     }
 
@@ -487,7 +488,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
         if(!$this->api()->getCampaign($cid)) {
             $cid = null;
         }
-        
+
         @setcookie('mailchimp_campaign_id', $cid, $cookie_duration, '/' );
         $this->setWooSession('mailchimp_campaign_id', $cid);
 
