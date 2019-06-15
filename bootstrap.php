@@ -70,7 +70,6 @@ spl_autoload_register(function($class) {
 
         'WP_Job' => 'includes/vendor/queue/classes/wp-job.php',
         'WP_Queue' => 'includes/vendor/queue/classes/wp-queue.php',
-        'WP_Http_Worker' => 'includes/vendor/queue/classes/worker/wp-http-worker.php',
         'WP_Worker' => 'includes/vendor/queue/classes/worker/wp-worker.php',
         'Queue_Command' => 'includes/vendor/queue/classes/cli/queue-command.php',
     );
@@ -170,7 +169,18 @@ if (!function_exists( 'wp_queue')) {
  * @param bool $force_now
  */
 function mailchimp_handle_or_queue(WP_Job $job, $delay = 0, $force_now = false)
-{
+{   
+    if ($job instanceof \MailChimp_WooCommerce_Single_Order && isset($job->order_id)) {
+        // if this is a order process already queued - just skip this
+        if (get_site_transient("mailchimp_order_being_processed_{$job->order_id}") == true) {
+            mailchimp_debug('order_sync.abort', "transient true for order {$job->order_id}. Skipping queue item addition.");
+            return;
+        }
+        // tell the system the order is already queued for processing in this saving process - and we don't need to process it again.
+        set_site_transient( "mailchimp_order_being_processed_{$job->order_id}", true, 30);
+        mailchimp_debug('order_sync.transient', "transient set for order {$job->order_id}");
+    }
+
     wp_queue($job, $delay);
 
     // force now is used during the sync.
@@ -302,10 +312,13 @@ function mailchimp_get_user_tags_to_update() {
     }
 
     $tags = explode(',', $tags);
-    
+
     foreach ($tags as $tag) {
         $formatted_tags[] = array("name" => $tag, "status" => 'active');
     }
+
+    // apply filter to user custom tags addition/removal
+    $formatted_tags = apply_filters('mailchimp_user_tags', $formatted_tags);
     
     return $formatted_tags;
 }
@@ -1231,15 +1244,17 @@ function mailchimp_rest_response($data, $status = 200) {
  */
 function mailchimp_has_started_syncing() {
     $sync_started_at = get_option('mailchimp-woocommerce-sync.started_at');
-    return !empty($sync_started_at);
+    $sync_completed_at = get_option('mailchimp-woocommerce-sync.completed_at');
+    return ($sync_completed_at < $sync_started_at);
 }
 
 /**
  * @return bool
  */
 function mailchimp_is_done_syncing() {
+    $sync_started_at = get_option('mailchimp-woocommerce-sync.started_at');
     $sync_completed_at = get_option('mailchimp-woocommerce-sync.completed_at');
-    return !empty($sync_completed_at);
+    return ($sync_completed_at >= $sync_started_at);
 }
 
 function run_mailchimp_woocommerce() {

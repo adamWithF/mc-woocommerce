@@ -22,12 +22,13 @@ class MailChimp_WooCommerce_Rest_Api
      */
     public static function test()
     {
+        add_filter( 'https_local_ssl_verify', '__return_false', 1 );
+
         return mailchimp_woocommerce_rest_api_get(
             static::url('ping'),
             array(
                 'timeout'   => 5,
                 'blocking'  => true,
-                'sslverify' => apply_filters('https_local_ssl_verify', false)
             ),
             mailchimp_get_http_local_json_header()
         );
@@ -42,6 +43,8 @@ class MailChimp_WooCommerce_Rest_Api
      */
     public static function work($force = false)
     {
+        add_filter( 'https_local_ssl_verify', '__return_false', 1 );
+
         $path = $force ? 'queue/work/force' : 'queue/work';
         // this is the new rest API version
         return mailchimp_woocommerce_rest_api_get(
@@ -49,7 +52,6 @@ class MailChimp_WooCommerce_Rest_Api
             array(
                 'timeout'   => 0.01,
                 'blocking'  => false,
-                'sslverify' => apply_filters('https_local_ssl_verify', false),
             ),
             mailchimp_get_http_local_json_header()
         );
@@ -225,7 +227,6 @@ class MailChimp_WooCommerce_Rest_Api
         $result = wp_remote_post(esc_url_raw($route), array(
             'timeout'   => 12,
             'blocking'  => true,
-            'sslverify' => apply_filters('https_local_ssl_verify', false),
             'method'      => 'POST',
             'data_format' => 'body',
             'headers'     => array('Content-Type' => 'application/json; charset=utf-8'),
@@ -270,7 +271,7 @@ class MailChimp_WooCommerce_Rest_Api
             'products_in_mailchimp' => $mailchimp_total_products,
             'orders_in_store' => $order_count,
             'orders_in_mailchimp' => $mailchimp_total_orders,
-            'date' => date_i18n( __('D, M j, Y g:i A', 'mailchimp-woocommerce'), $date->getTimestamp()),
+            'date' => date_i18n( __('D, M j, Y g:i A', 'mc-woocommerce'), $date->getTimestamp()),
             'has_started' => mailchimp_has_started_syncing(),
             'has_finished' => mailchimp_is_done_syncing(),
         ));
