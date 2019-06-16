@@ -841,8 +841,7 @@ function mailchimp_call_rest_api_test() {
  * @return bool
  */
 function mailchimp_should_use_local_curl_for_rest_api() {
-  return false;
-    // return defined('MAILCHIMP_USE_CURL') && MAILCHIMP_USE_CURL;
+    return defined('MAILCHIMP_USE_CURL') && MAILCHIMP_USE_CURL;
 }
 
 /**
