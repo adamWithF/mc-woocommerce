@@ -156,6 +156,14 @@ class MailChimp_WooCommerce_Transform_Orders
             // add it into the order item container.
             $item = $this->transformLineItem($key, $order_detail);
 
+            $item->setQuantity($item->getQuantity() + $woo->get_qty_refunded_for_item($order_detail->get_id()));
+
+            if ($item->getQuantity() == 0) {
+                continue;
+            }
+
+            $item->setPrice($item->getPrice() - $woo->get_total_refunded_for_item($order_detail->get_id()));
+
             // if we don't have a product post with this id, we need to add a deleted product to the MC side
             if (!($product = $order_detail->get_product()) || 'trash' === $product->get_status()) {
 
@@ -184,6 +192,12 @@ class MailChimp_WooCommerce_Transform_Orders
             }
 
             $order->addItem($item);
+        }
+
+        if (($refund = $woo->get_total_refunded()) && $refund > 0){
+          // this is where we would be altering the submission to tell us about the refund.
+          $order->setTaxTotal($order->getTaxTotal() - $woo->get_total_tax_refunded());
+          $order->setOrderTotal($order->getOrderTotal() - $woo->get_total_refunded());
         }
 
         return $order;
