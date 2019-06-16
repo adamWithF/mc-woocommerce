@@ -157,11 +157,6 @@ class MailChimp_WooCommerce_Transform_Orders
             $item = $this->transformLineItem($key, $order_detail);
 
             $item->setQuantity($item->getQuantity() + $woo->get_qty_refunded_for_item($order_detail->get_id()));
-
-            if ($item->getQuantity() == 0) {
-                continue;
-            }
-
             $item->setPrice($item->getPrice() - $woo->get_total_refunded_for_item($order_detail->get_id()));
 
             // if we don't have a product post with this id, we need to add a deleted product to the MC side
