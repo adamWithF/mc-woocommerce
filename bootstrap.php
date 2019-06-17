@@ -143,6 +143,7 @@ if (defined( 'WP_CLI' ) && WP_CLI) {
         };
         WP_CLI::add_command( 'mailchimp_push', 'mailchimp_cli_push_command');
         WP_CLI::add_command( 'queue', 'Queue_Command' );
+        WP_CLI::add_command( 'refresh_script', 'mailchimp_update_connected_site_script' );
     } catch (\Exception $e) {}
 }
 
