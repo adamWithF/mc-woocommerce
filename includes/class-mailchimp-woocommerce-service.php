@@ -169,18 +169,25 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
      */
     public function handleCartUpdated($updated = null)
     {
+
+        error_log('h401 MailChimp_Service->handleCartUpdated');
+
         if ($updated === false || $this->is_admin || $this->cart_was_submitted || !mailchimp_is_configured()) {
+        error_log('h402');
             return !is_null($updated) ? $updated : false;
         }
 
         if (empty($this->cart)) {
             $this->cart = $this->getCartItems();
         }
+        error_log('h403 cart: ' . print_r($this->cart, true) . ' email: ' . $this->getCurrentUserEmail());
 
         if (($user_email = $this->getCurrentUserEmail())) {
+        error_log('h404');
 
             // let's skip this right here - no need to go any further.
             if (mailchimp_email_is_privacy_protected($user_email)) {
+        error_log('h405');
                 return !is_null($updated) ? $updated : false;
             }
 
@@ -192,8 +199,10 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
 
             // delete the previous records.
             if (!empty($previous) && $previous !== $user_email) {
+        error_log('h406');
 
                 if ($this->api()->deleteCartByID($unique_sid, $previous_email = mailchimp_hash_trim_lower($previous))) {
+        error_log('h407');
                     mailchimp_log('ac.cart_swap', "Deleted cart [$previous] :: ID [$previous_email]");
                 }
 
@@ -203,10 +212,13 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
 
             // delete the current cart record if there is one
             $this->api()->deleteCartByID($unique_sid, $uid);
+        error_log('h408');
 
             if ($this->cart && !empty($this->cart)) {
+        error_log('h409');
 
                 // track the cart locally so we can repopulate things for cross device compatibility.
+        error_log('h410 before trackCart call');
                 $this->trackCart($uid, $user_email);
 
                 $this->cart_was_submitted = true;
@@ -214,14 +226,17 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
                 // grab the cookie data that could play important roles in the submission
                 $campaign = $this->getCampaignTrackingID();
 
+        error_log('h411');
                 // fire up the job handler
                 $handler = new MailChimp_WooCommerce_Cart_Update($uid, $user_email, $campaign, $this->cart);
                 mailchimp_handle_or_queue($handler);
             }
 
+        error_log('h412');
             return !is_null($updated) ? $updated : true;
         }
 
+        error_log('h413');
         return !is_null($updated) ? $updated : false;
     }
 
@@ -427,6 +442,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
      */
     public function handleCampaignTracking()
     {
+        error_log('h420 MailChimp_Service->handleCampaignTracking');
         // set the landing site cookie if we don't have one.
         $this->setLandingSiteCookie();
 
@@ -473,6 +489,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
             $cookie = $this->getWooSession('mailchimp_tracking_id', false);
         }
 
+        error_log('h423 MailChimp_Service->getCampaignTrackingID() cookie: ' . $cookie);
         return $cookie;
     }
 
@@ -483,6 +500,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
      */
     public function setCampaignTrackingID($id, $cookie_duration)
     {
+        error_log('h423 MailChimp_Service->getCampaignTrackingID() cookie: ' . $cookie);
         $cid = trim($id);
 
         if(!$this->api()->getCampaign($cid)) {
@@ -720,6 +738,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
      */
     protected function getCart($uid)
     {
+        error_log('h425 MailChimp_Service->getCart');
         if (!$this->validated_cart_db) return false;
 
         global $wpdb;
@@ -729,9 +748,11 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
         $sql = $wpdb->prepare($statement, $uid);
 
         if (($saved_cart = $wpdb->get_row($sql)) && !empty($saved_cart)) {
+        error_log('h426 MailChimp_Service->getCart saved_cart: ' . $saved_cart);
             return $saved_cart;
         }
 
+        error_log('h427 MailChimp_Service->getCart');
         return false;
     }
 
@@ -741,12 +762,14 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
      */
     protected function deleteCart($uid)
     {
+        error_log('h428 MailChimp_Service->deleteCart: ' . $uid);
         if (!$this->validated_cart_db) return false;
 
         global $wpdb;
         $table = "{$wpdb->prefix}mailchimp_carts";
         $sql = $wpdb->prepare("DELETE FROM $table WHERE id = %s", $uid);
         $wpdb->query($sql);
+        error_log('h428 MailChimp_Service->deleteCart cart deleted ' . $uid);
 
         return true;
     }
@@ -758,7 +781,9 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
      */
     protected function trackCart($uid, $email)
     {
+        error_log('h428 MailChimp_Service->trackCart uid' . $uid . ' email: ' . $email);
         if (!$this->validated_cart_db) return false;
+        error_log('h429 MailChimp_Service->trackCart');
 
         global $wpdb;
 
@@ -769,11 +794,14 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
 
         $user_id = get_current_user_id();
 
+        error_log('h430 MailChimp_Service->trackCart');
         if (($saved_cart = $wpdb->get_row($sql)) && is_object($saved_cart)) {
+            error_log('h431 MailChimp_Service->trackCart saved_cart: ' . print_r($saved_cart));
             $statement = "UPDATE {$table} SET `cart` = '%s', `email` = '%s', `user_id` = %s WHERE `id` = '%s'";
             $sql = $wpdb->prepare($statement, array(maybe_serialize($this->cart), $email, $user_id, $uid));
             $wpdb->query($sql);
         } else {
+            error_log('h432 MailChimp_Service->trackCart');
             $wpdb->insert("{$wpdb->prefix}mailchimp_carts", array(
                 'id' => $uid,
                 'email' => $email,

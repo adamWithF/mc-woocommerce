@@ -43,7 +43,9 @@ class MailChimp_WooCommerce_Activator {
             update_option('mailchimp-woocommerce-store_id', uniqid(), 'yes');
         }
 
+        error_log('h52 activate');
         if (class_exists('MailChimp_WooCommerce_MailChimpApi')) {
+        error_log('h53 activate');
             // try this now for existing stores on an update.
             mailchimp_update_connected_site_script();
         }

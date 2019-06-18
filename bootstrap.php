@@ -171,6 +171,7 @@ if (!function_exists( 'wp_queue')) {
  */
 function mailchimp_handle_or_queue(WP_Job $job, $delay = 0, $force_now = false)
 {
+    error_log('mailchimp_handle_or_queue job');
     if ($job instanceof \MailChimp_WooCommerce_Single_Order && isset($job->order_id)) {
         // if this is a order process already queued - just skip this
         if (get_site_transient("mailchimp_order_being_processed_{$job->order_id}") == true) {
@@ -514,6 +515,8 @@ function mailchimp_woocommerce_get_all_image_sizes_list() {
  */
 function activate_mailchimp_woocommerce() {
     // if we don't have woocommerce we need to display a horrible error message before the plugin is installed.
+    error_log('h12');
+
     if (!mailchimp_check_woocommerce_plugin_status()) {
         // Deactivate the plugin
         deactivate_plugins(__FILE__);
@@ -654,18 +657,23 @@ function mailchimp_update_connected_site_script() {
     // pull the store ID
     $store_id = mailchimp_get_store_id();
 
+    error_log('h48');
     // if the api is configured
     if ($store_id && ($api = mailchimp_get_api())) {
+    error_log('h49');
         // if we have a store
         if (($store = $api->getStore($store_id))) {
+    error_log('h50');
             // handle the coupon sync if we don't have a flag that says otherwise.
             $job = new MailChimp_WooCommerce_Process_Coupons();
             if ($job->getData('sync.coupons.completed_at', false) === false) {
+    error_log('h51');
                 mailchimp_handle_or_queue($job);
             }
             return mailchimpi_refresh_connected_site_script($store);
         }
     }
+    error_log('h52');
     return false;
 }
 
@@ -957,6 +965,8 @@ function mailchimp_woocommerce_rest_api_get($url, $params = array(), $headers = 
         try {
             $curl = curl_init();
             curl_setopt_array($curl, mailchimp_apply_local_curl_options('GET', $url, $params, $headers));
+
+    error_log('h38');
             return mailchimp_process_local_curl_response($curl);
         } catch (\Exception $e) {
             mailchimp_error("mailchimp_woocommerce_rest_api_get", $e->getMessage());
@@ -966,6 +976,7 @@ function mailchimp_woocommerce_rest_api_get($url, $params = array(), $headers = 
 
     $params['headers'] = $headers;
 
+    error_log('h39');
     return wp_remote_get($url, $params);
 }
 
@@ -1203,7 +1214,9 @@ function mailchimp_flush_queue_tables() {
         $wpdb->query($wpdb->prepare("TRUNCATE `{$wpdb->prefix}queue`", array()));
         $wpdb->query($wpdb->prepare("TRUNCATE `{$wpdb->prefix}failed_jobs`", array()));
         $wpdb->query($wpdb->prepare("TRUNCATE `{$wpdb->prefix}mailchimp_carts`", array()));
-    } catch (\Exception $e) {}
+    } catch (\Exception $e) {
+        error_log('h200 exception ' . $e->getTraceAsString());
+    }
 }
 
 function mailchimp_flush_sync_pointers() {

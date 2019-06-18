@@ -727,6 +727,7 @@ class MailChimp_WooCommerce_MailChimpApi
      */
     public function carts($store_id, $page = 1, $count = 10)
     {
+            error_log('h140 class-mailchimp-api->carts');
         $result = $this->get('ecommerce/stores/'.$store_id.'/carts', array(
             'start' => $page,
             'count' => $count,
@@ -747,23 +748,31 @@ class MailChimp_WooCommerce_MailChimpApi
     public function addCart($store_id, MailChimp_WooCommerce_Cart $cart, $silent = true)
     {
         try {
+            error_log('h130 class-mailchimp-api->addCart');
             $email = $cart->getCustomer()->getEmailAddress();
 
             if (mailchimp_email_is_privacy_protected($email) || mailchimp_email_is_amazon($email)) {
+            error_log('h131 class-mailchimp-api->addCart');
                 return false;
             }
 
             mailchimp_debug('api.addCart', "Adding Cart :: {$email}", $data = $cart->toArray());
 
+            error_log('h132 class-mailchimp-api->addCart: ' . $store_id . ' . cart: ' . print_r($cart, true));
             $data = $this->post("ecommerce/stores/$store_id/carts", $data);
             $cart = new MailChimp_WooCommerce_Cart();
+            error_log('h133 class-mailchimp-api->addCart');
             return $cart->setStoreID($store_id)->fromArray($data);
         } catch (MailChimp_WooCommerce_Error $e) {
+            error_log('h134 class-mailchimp-api->addCart');
             if (!$silent) throw $e;
+            error_log('h135 class-mailchimp-api->addCart');
             mailchimp_log('api.addCart', $e->getMessage());
             return false;
         } catch (\Exception $e) {
+            error_log('h136 class-mailchimp-api->addCart');
             if (!$silent) throw $e;
+            error_log('h137 class-mailchimp-api->addCart');
             return false;
         }
     }
@@ -779,23 +788,31 @@ class MailChimp_WooCommerce_MailChimpApi
     public function updateCart($store_id, MailChimp_WooCommerce_Cart $cart, $silent = true)
     {
         try {
+            error_log('h138 class-mailchimp-api->updateCart');
             $email = $cart->getCustomer()->getEmailAddress();
 
             if (mailchimp_email_is_privacy_protected($email) || mailchimp_email_is_amazon($email)) {
+            error_log('h139 class-mailchimp-api->updateCart');
                 return false;
             }
 
             mailchimp_debug('api.updateCart', "Updating Cart :: {$email}", $data = $cart->toArrayForUpdate());
 
+            error_log('h140 class-mailchimp-api->updateCart');
             $data = $this->patch("ecommerce/stores/$store_id/carts/{$cart->getId()}", $data);
             $cart = new MailChimp_WooCommerce_Cart();
+            error_log('h141 class-mailchimp-api->updateCart');
             return $cart->setStoreID($store_id)->fromArray($data);
         } catch (MailChimp_WooCommerce_Error $e) {
+            error_log('h142 class-mailchimp-api->updateCart');
             if (!$silent) throw $e;
+            error_log('h143 class-mailchimp-api->updateCart');
             mailchimp_log('api.updateCart', $e->getMessage());
             return false;
         } catch (\Exception $e) {
+            error_log('h144 class-mailchimp-api->updateCart');
             if (!$silent) throw $e;
+            error_log('h145 class-mailchimp-api->updateCart');
             return false;
         }
     }
@@ -825,12 +842,16 @@ class MailChimp_WooCommerce_MailChimpApi
      */
     public function deleteCartByID($store_id, $id)
     {
+            error_log('h146 class-mailchimp-api->deleteCartByID');
         try {
             $this->delete("ecommerce/stores/$store_id/carts/$id");
+            error_log('h147 class-mailchimp-api->deleteCartByID');
             return true;
         } catch (MailChimp_WooCommerce_Error $e) {
+            error_log('h148 class-mailchimp-api->deleteCartByID');
             return false;
         } catch (\Exception $e) {
+            error_log('h149 class-mailchimp-api->deleteCartByID');
             return false;
         }
     }

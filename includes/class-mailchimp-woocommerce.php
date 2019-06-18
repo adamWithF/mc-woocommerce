@@ -118,6 +118,7 @@ class MailChimp_WooCommerce
      */
     public function __construct($environment = 'production', $version = '1.0.0')
     {
+        error_log('h300 MailChimp_WooCommerce__contructor');
         $this->plugin_name = 'mailchimp-woocommerce';
         $this->version = $version;
         $this->environment = $environment;
@@ -176,9 +177,13 @@ class MailChimp_WooCommerce
     {
         global $wp_queue;
 
+    error_log('h45 load_dependencies');
         if (empty($wp_queue)) {
+    error_log('h46');
             $wp_queue = new WP_Queue();
         }
+
+        error_log('h44 $wp_queue: '); // . print_r($wp_queue, true));
 
         // fire up the loader
         $this->loader = new MailChimp_WooCommerce_Loader();
@@ -224,6 +229,7 @@ class MailChimp_WooCommerce
 	 */
 	private function define_admin_hooks() {
 
+        error_log('h70 define_admin_hooks');
 		$plugin_admin = MailChimp_WooCommerce_Admin::instance();
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');

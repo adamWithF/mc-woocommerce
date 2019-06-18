@@ -43,7 +43,10 @@ class MailChimp_WooCommerce_Rest_Api
      */
     public static function work($force = false)
     {
+    error_log('h13');
         add_filter( 'https_local_ssl_verify', '__return_false', 1 );
+
+    error_log('h37');
 
         $path = $force ? 'queue/work/force' : 'queue/work';
         // this is the new rest API version
@@ -110,6 +113,7 @@ class MailChimp_WooCommerce_Rest_Api
             'callback' => array($this, 'queue_stats'),
         ));
 
+    error_log('h43');
         // if we have available jobs, it will handle async
         if ($this->maybe_fire_manually()) {
             static::work();
@@ -162,23 +166,30 @@ class MailChimp_WooCommerce_Rest_Api
      */
     public function queue_work(WP_REST_Request $request)
     {
+    error_log('h14');
         // if we're going to dispatch the manual request on this process, just return a "spawning" reason.
         if ($this->http_worker_listen === true) {
+    error_log('h36');
             return mailchimp_rest_response(array('success' => false, 'reason' => 'spawning'));
         }
 
         // if the queue is running in the console - we need to say tell the response why it's not going to fire this way.
         if (mailchimp_running_in_console()) {
+    error_log('h35');
             return mailchimp_rest_response(array('success' => false, 'reason' => 'cli enabled'));
         }
 
         // if the worker is already running - just respond with a reason of "running"
         if (mailchimp_http_worker_is_running()) {
+    error_log('h34');
+
             return mailchimp_rest_response(array('success' => false, 'reason' => 'running'));
         }
 
+    error_log('h21');
         // using the singleton - handle the jobs if we have things to do - will return a count
         $jobs_processed = MailChimp_WooCommerce_Rest_Queue::instance()->handle();
+    error_log('h25 jobs processed: ' . $jobs_processed);
 
         // chances are this will never be returned to JS at all just because we're using a 0.01 second timeout
         // but we need to do it just in case.
@@ -201,9 +212,11 @@ class MailChimp_WooCommerce_Rest_Api
             return mailchimp_rest_response(array('success' => false, 'reason' => 'cli enabled'));
         }
 
+    error_log('h22');
         // reset the lock
         mailchimp_reset_http_lock();
 
+    error_log('h23 queue_work_force');
         // using the singleton - handle the jobs if we have things to do - will return a count
         $jobs_processed = MailChimp_WooCommerce_Rest_Queue::instance()->handle();
 

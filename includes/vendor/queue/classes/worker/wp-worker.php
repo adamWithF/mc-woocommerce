@@ -44,6 +44,9 @@ if ( ! class_exists( 'WP_Worker' ) ) {
 		public function process_next_job() {
 			$job = $this->queue->get_next_job();
 
+
+        error_log('h240 WP_Worker->process_next_job()');
+
 			if (empty($job)) {
 			    return false;
             }

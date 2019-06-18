@@ -71,6 +71,8 @@ class MailChimp_WooCommerce_Single_Product extends WP_Job
      */
     public function process()
     {
+
+        error_log('h230 MailChimp_WooCommerce_Single_Product->process()');
         if (empty($this->product_id)) {
             return false;
         }

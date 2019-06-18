@@ -56,6 +56,7 @@ abstract class MailChimp_WooCommerce_Abstract_Sync extends WP_Job
      */
     public function go()
     {
+        error_log('h210 MailChimp_WooCommerce_Abstract_Sync->get_class' . get_class($this));
         return $this->handle();
     }
 

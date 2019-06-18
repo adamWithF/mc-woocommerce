@@ -31,10 +31,14 @@ abstract class MailChimp_WooCommerce_Options
 
             // don't do the redirect while activating the plugin through the rest API. ( Bartosz from Woo asked for this )
             if ((defined( 'REST_REQUEST' ) && REST_REQUEST)) {
+
+    error_log('h41');
                 return;
             }
 
             if (!isset($_GET['activate-multi'])) {
+
+    error_log('h42');
                 wp_redirect("admin.php?page=mailchimp-woocommerce");
             }
         }
@@ -174,6 +178,7 @@ abstract class MailChimp_WooCommerce_Options
      */
     public function getCached($key, $default = null)
     {
+        error_log('get cached: ' . $key);
         $cached = $this->getData("cached-$key", false);
         if (empty($cached) || !($cached = unserialize($cached))) {
             return $default;

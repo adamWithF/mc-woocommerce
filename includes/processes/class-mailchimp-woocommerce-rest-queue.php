@@ -53,22 +53,32 @@ class MailChimp_WooCommerce_Rest_Queue
      */
     public function handle()
     {
+
+    error_log('h26');
         // if we have the queue runner disabled, process 1 and exit.
         if (mailchimp_queue_is_disabled()) {
+    error_log('h27');
             return $this->process_next_job();
         }
 
+    error_log('h28');
         // Worker already running, die
         if ($this->is_worker_running()) {
+    error_log('h29');
             mailchimp_debug('rest_queue', 'blocked process because it was already running');
             return 'worker is running';
         }
 
+    error_log('h30');
         // Lock worker to prevent multiple instances spawning
         $this->lock_worker();
+        error_log('h31 available_jobs: '); // $this->queue->available_jobs());
 
         // counter.
         $jobs_processed = 0;
+
+        error_log('h40 time_exceeded: ' . $this->time_exceeded());
+        error_log('h41 memory_exceeded: ' . print_r($this->memory_exceeded() , true));
         // Loop over jobs while within server limits
         while (!$this->time_exceeded() && !$this->memory_exceeded()) {
             if ($this->queue->available_jobs() > 0) {
@@ -80,6 +90,7 @@ class MailChimp_WooCommerce_Rest_Queue
             break;
         }
 
+    error_log('h32');
         // Unlock worker to allow another instance to be spawned
         $this->unlock_worker();
 
@@ -98,6 +109,9 @@ class MailChimp_WooCommerce_Rest_Queue
      */
     public function process_next_job()
     {
+
+        error_log('h231 process_next_job()');
+
         $job = $this->queue->get_next_job();
 
         if (empty($job)) {
@@ -242,6 +256,8 @@ class MailChimp_WooCommerce_Rest_Queue
             'timeout'   => 0.01,
             'blocking'  => false,
         );
+
+    error_log('h40');
         mailchimp_woocommerce_rest_api_get($url, $params, mailchimp_get_http_local_json_header());
     }
 }

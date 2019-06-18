@@ -47,6 +47,7 @@ class MailChimp_WooCommerce_Single_Order extends WP_Job
 
     public function process()
     {
+        error_log('h120 MailChimp_WooCommerce_Single_Order->process');
         if (!mailchimp_is_configured() || !($api = mailchimp_get_api())) {
             mailchimp_debug(get_called_class(), 'mailchimp is not configured properly');
             return false;

@@ -89,6 +89,8 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 	 * @since    2.1.15
 	 */
 	public function setup_survey_form() {
+        error_log('h73 setup_survey_form');
+        
 		if (is_admin()) {
             try {
                 new Mailchimp_Woocommerce_Deactivation_Survey($this->plugin_name, 'mailchimp-for-woocommerce');
@@ -146,6 +148,8 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 	public function update_db_check() {
 		// grab the current version set in the plugin variables
 		global $wpdb;
+        
+        error_log('h63');
 
 		$version = mailchimp_environment_variables()->version;
 
@@ -166,6 +170,8 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 		}
 
 		if (!get_option( $this->plugin_name.'_woo_currency_update')) {
+
+        error_log('h62 update_db_check');
 			if ($this->mailchimp_update_woo_settings()) {
 				update_option( $this->plugin_name.'_woo_currency_update', true);
 			}
@@ -198,6 +204,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 	public function mailchimp_update_woo_settings() {
 		$new_currency_code = null;
 
+        error_log('h61 mailchimp_update_woo_settings');
 		if (isset($_POST['woo_multi_currency_params'])) {
 			$new_currency_code = $_POST['currency_default'];
 		}
@@ -789,7 +796,12 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 		return true;
 	}
 
-    public function inject_sync_ajax_call() { global $wp; ?>
+    public function inject_sync_ajax_call() {
+        global $wp;
+
+        error_log('h71 inject_sync_ajax_call');
+        
+        ?>
         <script type="text/javascript" >
             jQuery(document).ready(function($) {
                 var endpoint = '<?php echo MailChimp_WooCommerce_Rest_Api::url('sync/stats'); ?>';
@@ -907,6 +919,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 	 */
 	private function syncStore($data = null)
 	{
+        error_log('h60 syncStore');
 		if (empty($data)) {
 			$data = $this->getOptions();
 		}
@@ -914,7 +927,9 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
         $list_id = $this->array_get($data, 'mailchimp_list', false);
         $store_id = $this->getUniqueStoreID();
 
+            error_log('h56 list_id: ' . $list_id);
 		if (empty($list_id)) {
+            error_log('h57 list_id empty');
 		    return false;
         }
 
@@ -922,6 +937,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 
 		if (!($store = $this->api()->getStore(get_option('mailchimp-woocommerce-store_id')))) {
 			$new = true;
+            error_log('h80 syncStore new store');
 			$store = new MailChimp_WooCommerce_Store();
 		}
 
@@ -951,20 +967,29 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 
 		try {
 			// let's create a new store for this user through the API
+            error_log('h81 syncStore create new store');
 			$this->api()->$call($store, false);
+            error_log('h82 syncStore new store created: ' . print_r($store, true));
 
 			// apply extra meta for store created at
 			$this->setData('errors.store_info', false);
+            error_log('h83');
 			$this->setData($time_key, time());
+            error_log('h84');
 
 			// on a new store push, we need to make sure we save the site script into a local variable.
+            
+            error_log('h55 syncStore');
 			if ($new) {
+            error_log('h57 syncStore run mailchimp_update_connected_site_script');
                 mailchimp_update_connected_site_script();
             }
 
+            error_log('h84');
 			return true;
 
 		} catch (\Exception $e) {
+            error_log('h58 syncStore exception');
 			if (mailchimp_string_contains($e->getMessage(),'woocommerce already exists in the account' )) {
 				// retrieve mailchimp store using domain
 				$stores = $this->api()->stores();
@@ -1058,14 +1083,19 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
      */
 	public static function startSync()
 	{
+         
+        error_log('h8');
 	    // delete the transient so this only happens one time.
 	    delete_site_transient('mailchimp_woocommerce_start_sync');
 
+        error_log('h9');
         $coupon_sync = new MailChimp_WooCommerce_Process_Coupons_Initial_Sync();
 
+        error_log('h10');
         // tell Mailchimp that we're syncing
         $coupon_sync->flagStartSync();
 
+        error_log('h11');
         // queue up the jobs
         mailchimp_handle_or_queue($coupon_sync, 0, true);
 	}

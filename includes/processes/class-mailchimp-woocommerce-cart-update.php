@@ -76,9 +76,12 @@ class MailChimp_WooCommerce_Cart_Update extends WP_Job
      */
     public function process()
     {
+        error_log('h110 MailChimp_WooCommerce_Cart->process()');
         try {
 
+        error_log('h111');
             if (!mailchimp_is_configured() || !($api = mailchimp_get_api())) {
+        error_log('h112');
                 mailchimp_debug(get_called_class(), 'mailchimp is not configured properly');
                 return false;
             }
@@ -91,8 +94,10 @@ class MailChimp_WooCommerce_Cart_Update extends WP_Job
             // delete it and the add it back.
             $api->deleteCartByID($store_id, $this->unique_id);
 
+        error_log('h113');
             // if they emptied the cart ignore it.
             if (!is_array($this->cart_data) || empty($this->cart_data)) {
+        error_log('h114');
                 return false;
             }
 
@@ -114,6 +119,7 @@ class MailChimp_WooCommerce_Cart_Update extends WP_Job
 
             // if we have a campaign id let's set it now.
             if (!empty($this->campaign_id)) {
+        error_log('h115');
                 try {
                     $cart->setCampaignID($this->campaign_id);
                 }
@@ -140,6 +146,7 @@ class MailChimp_WooCommerce_Cart_Update extends WP_Job
             }
 
             if (empty($products)) {
+        error_log('h116');
                 return false;
             }
 
@@ -151,6 +158,7 @@ class MailChimp_WooCommerce_Cart_Update extends WP_Job
                     mailchimp_log('abandoned_cart.success', "email: {$customer->getEmailAddress()} :: checkout_url: $checkout_url");
                 }
             } catch (\Exception $e) {
+        error_log('h170');
 
                 mailchimp_error('abandoned_cart.error', "email: {$customer->getEmailAddress()} :: attempting product update :: {$e->getMessage()}");
 
@@ -164,6 +172,7 @@ class MailChimp_WooCommerce_Cart_Update extends WP_Job
                         $transformer->handle();
                     }
                 }
+        error_log('h171');
 
                 // if the post is successful we're all good.
                 $api->addCart($store_id, $cart, false);
@@ -180,6 +189,7 @@ class MailChimp_WooCommerce_Cart_Update extends WP_Job
             mailchimp_error('abandoned_cart.error', $e);
         }
 
+        error_log('h117');
         return false;
     }
 

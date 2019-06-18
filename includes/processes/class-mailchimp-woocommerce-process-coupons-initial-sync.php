@@ -16,6 +16,9 @@ class MailChimp_WooCommerce_Process_Coupons_Initial_Sync extends MailChimp_WooCo
         $this->setResourceCompleteTime();
 
         $product_sync = new MailChimp_WooCommerce_Process_Products();
+
+
+    error_log('h46 MailChimp_WooCommerce_Process_Coupons_Initial_Sync complete');
         mailchimp_handle_or_queue($product_sync, 0, true);
     }
 }
