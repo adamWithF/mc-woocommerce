@@ -912,15 +912,15 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 		}
 
         $list_id = $this->array_get($data, 'mailchimp_list', false);
-        $site_url = $this->getUniqueStoreID();
+        $store_id = $this->getUniqueStoreID();
 
-		if (empty($list_id) || empty($site_url)) {
+		if (empty($list_id)) {
 		    return false;
         }
 
 		$new = false;
 
-		if (!($store = $this->api()->getStore($site_url))) {
+		if (!($store = $this->api()->getStore(get_option('mailchimp-woocommerce-store_id')))) {
 			$new = true;
 			$store = new MailChimp_WooCommerce_Store();
 		}
@@ -928,7 +928,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 		$call = $new ? 'addStore' : 'updateStore';
 		$time_key = $new ? 'store_created_at' : 'store_updated_at';
 
-		$store->setId($site_url);
+		$store->setId($store_id);
 		$store->setPlatform('woocommerce');
 
 		// set the locale data

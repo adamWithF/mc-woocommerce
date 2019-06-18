@@ -297,7 +297,14 @@ function mailchimp_get_list_id() {
 function mailchimp_get_store_id() {
     $store_id = mailchimp_get_data('store_id', false);
     if (empty($store_id)) {
-        mailchimp_set_data('store_id', $store_id = uniqid(), 'yes');
+        $store_id = get_option('mailchimp-woocommerce-store_id', false);
+
+        if (empty($store_id)) {
+            $store_id = uniqid();
+            update_option('mailchimp-woocommerce-store_id', $store_id, 'yes');
+        }
+
+        mailchimp_set_data('store_id', $store_id, 'yes');
     }
     return $store_id;
 }

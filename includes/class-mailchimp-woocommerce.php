@@ -247,7 +247,7 @@ class MailChimp_WooCommerce
         $this->loader->add_action('admin_footer', $plugin_admin, 'inject_sync_ajax_call');
 
         // update MC store information when woocommerce general settings are saved
-        $this->loader->add_action('woocommerce_settings_save_general', $plugin_admin, 'mailchimp_update_woo_settings');
+        $this->loader->add_action('woocommerce_settings_saved', $plugin_admin, 'mailchimp_update_woo_settings');
         
         // update MC store information if "WooCommerce Multi-Currency Extension" settings are saved
         if ( class_exists( 'WOOMULTI_CURRENCY_F' ) ) {
