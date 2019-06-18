@@ -69,50 +69,14 @@ function mailchimpHandleBillingEmail(selector) {
 }
 
 jQuery(function($) {
-  if (!getCookie('mailchimp_user_email')) {
+  $('#mc-embedded-subscribe-form').submit(mailchimpHandleSubscription);
+
+  if (getCookie('MCPopupClosed') !== 'yes') {
     (function mailchimpIframeSubscriptionListener() {
       var iframe = $('.mc-modal iframe[data-dojo-attach-point="iframeModalContainer"]');
 
       if (iframe.length) {
-        iframe.contents().find('form').on('submit', function mailchimpHandleSubscription(e) {
-          try {
-            var emailEl = $('#mc-EMAIL', e.target);
-
-            if (emailEl.length && emailEl[0].checkValidity()) {
-              var email = emailEl.val();
-              mailchimp_cart.setEmail(email);
-
-              var c = mailchimp_public_data.ajax_url + "?action=mailchimp_set_user_by_email&email=" + email;
-              var d = new XMLHttpRequest;
-
-              d.open("POST", c, !0);
-              d.onload = function () {
-                var successful = d.status >= 200 && d.status < 400;
-                var msg = successful ? "mailchimp.handle_subscription.request.success" : "mailchimp.handle_subscription.request.error";
-
-                if (successful) {
-                  mailchimp_submitted_email = email;
-                }
-              };
-
-              d.onerror = function () {
-                console.log("mailchimp.handle_subscription.request.error", d.responseText)
-              };
-              d.setRequestHeader("Content-Type", "application/json");
-              d.setRequestHeader("Accept", "application/json");
-              d.send();
-
-            } else {
-              return false;
-            }
-
-          } catch (a) {
-            console.log("mailchimp.handle_subscription.error", a);
-            mailchimp_submitted_email = !1;
-          }
-
-          return true;
-        });
+        iframe.contents().find('form').on('submit', mailchimpHandleSubscription);
         
       } else {
         setTimeout(mailchimpIframeSubscriptionListener, 200);
@@ -123,6 +87,46 @@ jQuery(function($) {
   function getCookie(name) {
     var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? match[2] : null
+  }
+
+  function mailchimpHandleSubscription(e) {
+    try {
+      var emailEl = $('#mc-EMAIL, #mce-EMAIL', e.target);
+
+      if (emailEl.length && emailEl[0].checkValidity()) {
+        var email = emailEl.val();
+        mailchimp_cart.setEmail(email);
+
+        var c = mailchimp_public_data.ajax_url + "?action=mailchimp_set_user_by_email&email=" + email;
+        var d = new XMLHttpRequest;
+
+        d.open("POST", c, !0);
+        d.onload = function () {
+          var successful = d.status >= 200 && d.status < 400;
+          var msg = successful ? "mailchimp.handle_subscription.request.success" : "mailchimp.handle_subscription.request.error";
+
+          if (successful) {
+            mailchimp_submitted_email = email;
+          }
+        };
+
+        d.onerror = function () {
+          console.log("mailchimp.handle_subscription.request.error", d.responseText)
+        };
+        d.setRequestHeader("Content-Type", "application/json");
+        d.setRequestHeader("Accept", "application/json");
+        d.send();
+
+      } else {
+        return false;
+      }
+
+    } catch (a) {
+      console.log("mailchimp.handle_subscription.error", a);
+      mailchimp_submitted_email = !1;
+    }
+
+    return true;
   }
 });
 
