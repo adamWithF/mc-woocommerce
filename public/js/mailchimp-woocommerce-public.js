@@ -69,6 +69,10 @@ function mailchimpHandleBillingEmail(selector) {
 }
 
 jQuery(function($) {
+  $(document.body).on('click', '.mc-modal-bg', function(e) {
+    $('.mc-modal .mc-closeModal').click();
+  });
+  
   $('#mc-embedded-subscribe-form').submit(mailchimpHandleSubscription);
 
   if (getCookie('MCPopupClosed') !== 'yes') {
