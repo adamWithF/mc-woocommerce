@@ -1001,6 +1001,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 	private function address(array $data)
 	{
 		$address = new MailChimp_WooCommerce_Address();
+    $countries = new WC_Countries;
 
 		if (isset($data['store_street']) && $data['store_street']) {
 			$address->setAddress1($data['store_street']);
@@ -1030,7 +1031,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 			$address->setPhone($data['store_phone']);
 		}
 
-		$address->setCountryCode(WC_Countries::get_base_country());
+		$address->setCountryCode($countries->get_base_country());
 
 		return $address;
 	}
