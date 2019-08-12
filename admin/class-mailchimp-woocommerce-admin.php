@@ -199,10 +199,10 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 		$new_currency_code = null;
 
 		if (isset($_POST['woo_multi_currency_params'])) {
-			$new_currency_code = $_POST['currency_default'];
+			$new_currency_code = sanitize_text_field($_POST['currency_default']);
 		}
 		else if (isset($_POST['woocommerce_currency'])) {
-			$new_currency_code = $_POST['woocommerce_currency'];
+			$new_currency_code = sanitize_text_field($_POST['woocommerce_currency']);
 		}
 
 		$data = $this->mailchimp_set_store_currency_code($new_currency_code);
@@ -292,14 +292,14 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
             case 'logs':
 
                 if (isset($_POST['log_file']) && !empty($_POST['log_file'])) {
-                    set_site_transient('mailchimp-woocommerce-view-log-file', $_POST['log_file'], 30);
+                  set_site_transient('mailchimp-woocommerce-view-log-file', sanitize_file_name($_POST['log_file']), 30);
                 }
 
                 $data = array(
                     'mailchimp_logging' => isset($input['mailchimp_logging']) ? $input['mailchimp_logging'] : 'none',
                 );
 
-                if (isset($_POST['mc_action']) && in_array($_POST['mc_action'], array('view_log', 'remove_log'))) {
+                if (isset($_POST['mc_action']) && in_array(sanitize_text_field($_POST['mc_action']), array('view_log', 'remove_log'))) {
                     $path = 'admin.php?page=mailchimp-woocommerce&tab=logs';
                     wp_redirect($path);
                     exit();
@@ -940,7 +940,7 @@ class MailChimp_WooCommerce_Admin extends MailChimp_WooCommerce_Options {
 		// set the basics
 		$store->setName($this->array_get($data, 'store_name'));
 		$store->setDomain(parse_url(site_url())['host']);
-        
+
         // don't know why we did this before
         //$store->setEmailAddress($this->array_get($data, 'campaign_from_email'));
         $store->setEmailAddress($this->array_get($data, 'admin_email'));

@@ -65,7 +65,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
             return $default;
         }
 
-        return isset($_COOKIE[$key]) ? $_COOKIE[$key] : $default;
+        return isset($_COOKIE[$key]) ? sanitize_text_field($_COOKIE[$key]) : $default;
     }
 
     /**
@@ -333,7 +333,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
         if (!mailchimp_is_configured()) return;
 
         $subscribed = (bool) isset($_POST['mailchimp_woocommerce_newsletter']) ?
-            $_POST['mailchimp_woocommerce_newsletter'] : false;
+                    sanitize_text_field($_POST['mailchimp_woocommerce_newsletter']) : false;
 
         // update the user meta with the 'is_subscribed' form element
         update_user_meta($user_id, 'mailchimp_woocommerce_is_subscribed', $subscribed);
@@ -436,7 +436,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
         if (isset($_GET['mc_cart_id']) && !isset($_GET['removed_item'])) {
 
             // try to pull the cart from the database.
-            if (($cart = $this->getCart($_GET['mc_cart_id'])) && !empty($cart)) {
+            if (($cart = $this->getCart(sanitize_text_field($_GET['mc_cart_id']))) && !empty($cart)) {
 
                 // set the current user email
                 $this->user_email = trim(str_replace(' ','+', $cart->email));
@@ -455,11 +455,11 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
         }
 
         if (isset($_REQUEST['mc_cid'])) {
-            $this->setCampaignTrackingID($_REQUEST['mc_cid'], $cookie_duration);
+            $this->setCampaignTrackingID(sanitize_text_field($_REQUEST['mc_cid']), $cookie_duration);
         }
 
         if (isset($_REQUEST['mc_eid'])) {
-            @setcookie('mailchimp_email_id', trim($_REQUEST['mc_eid']), $cookie_duration, '/' );
+            @setcookie('mailchimp_email_id', trim(sanitize_text_field($_REQUEST['mc_eid'])), $cookie_duration, '/' );
         }
     }
 
@@ -639,7 +639,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
     public function get_user_by_hash()
     {
         if ($this->doingAjax() && isset($_GET['hash'])) {
-            if (($cart = $this->getCart($_GET['hash']))) {
+            if (($cart = $this->getCart(sanitize_text_field($_GET['hash'])))) {
                 $this->respondJSON(array('success' => true, 'email' => $cart->email));
             }
         }
@@ -659,7 +659,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
 
             $cookie_duration = $this->getCookieDuration();
 
-            $this->user_email = trim(str_replace(' ','+', $_GET['email']));
+            $this->user_email = trim(str_replace(' ','+', sanitize_text_field($_GET['email'])));
 
             if (($current_email = $this->getEmailFromSession()) && $current_email !== $this->user_email) {
                 $this->previous_email = $current_email;
@@ -711,7 +711,7 @@ class MailChimp_Service extends MailChimp_WooCommerce_Options
         if (!isset($_REQUEST['mailchimp-woocommerce']) || !isset($_REQUEST['mailchimp-woocommerce'][$key])) {
             return $default;
         }
-        return $_REQUEST['mailchimp-woocommerce'][$key];
+        return sanitize_text_field($_REQUEST['mailchimp-woocommerce'][$key]);
     }
 
     /**

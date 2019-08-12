@@ -1,5 +1,5 @@
 <?php
-$active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'api_key';
+$active_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'api_key';
 $is_mailchimp_post = isset($_POST['mailchimp_woocommerce_settings_hidden']) && $_POST['mailchimp_woocommerce_settings_hidden'] === 'Y';
 
 $handler = MailChimp_WooCommerce_Admin::connect();

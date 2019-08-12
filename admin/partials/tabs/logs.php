@@ -1,8 +1,8 @@
 <?php
 if (!empty( $_REQUEST['handle'])) {
-    if (!empty($_REQUEST['_wpnonce']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'remove_log')) {
+    if (!empty($_REQUEST['_wpnonce']) && wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'remove_log')) {
         $log_handler = new WC_Log_Handler_File();
-        $log_handler->remove($_REQUEST['handle']);
+        $log_handler->remove(sanitize_text_field($_REQUEST['handle']));
         wp_redirect('admin.php?page=mailchimp-woocommerce&tab=logs');
     }
 }
@@ -22,7 +22,7 @@ $requested_log_file = get_site_transient('mailchimp-woocommerce-view-log-file');
 delete_site_transient('mailchimp-woocommerce-view-log-file');
 
 if (empty($requested_log_file)) {
-    $requested_log_file = !empty($_REQUEST['log_file']) ? $_REQUEST['log_file'] : false;
+    $requested_log_file = !empty($_REQUEST['log_file']) ? sanitize_file_name($_REQUEST['log_file']) : false;
 }
 if (!empty($requested_log_file) && isset($logs[sanitize_title($requested_log_file)])) {
     $viewed_log = $logs[sanitize_title($requested_log_file)];

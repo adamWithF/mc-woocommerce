@@ -112,7 +112,7 @@ class MailChimp_Newsletter extends MailChimp_WooCommerce_Options
         $logged_in = is_user_logged_in();
 
         // if the post key is available we use it - otherwise we null it out.
-        $status = isset($_POST[$post_key]) ? (int) $_POST[$post_key] : null;
+        $status = isset($_POST[$post_key]) ? absint($_POST[$post_key]) : null;
 
         // if the status is null, we don't do anything
         if ($status === null) {

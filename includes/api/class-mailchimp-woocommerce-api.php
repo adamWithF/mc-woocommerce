@@ -24,10 +24,10 @@ class MailChimp_WooCommerce_Api
         if (isset($_GET['mailchimp-woocommerce']) && isset($_GET['mailchimp-woocommerce']['action'])) {
             if (in_array($_GET['mailchimp-woocommerce']['action'], static::$filterable_actions)) {
                 if (empty($default_page)) {
-                    $page = isset($_GET['page']) ? (int) $_GET['page'] : null;
+                    $page = isset($_GET['page']) ? absint($_GET['page']) : null;
                 }
                 if (empty($default_per)) {
-                    $per = isset($_GET['per']) ? (int) $_GET['per'] : null;
+                    $per = isset($_GET['per']) ? absint($_GET['per']) : null;
                 }
             }
         }
